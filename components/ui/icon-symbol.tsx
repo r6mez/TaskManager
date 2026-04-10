@@ -18,6 +18,8 @@ const MAPPING = {
   'circle': 'radio-button-unchecked',
   'plus': 'add',
   'trash': 'delete',
+  'ellipsis': 'more-horiz',
+  'pencil': 'edit',
 } as IconMapping;
 
 /**

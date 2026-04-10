@@ -39,6 +39,12 @@ export default function TasksScreen() {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   }, []);
 
+  const editTask = useCallback((id: string, text: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === id ? { ...task, text } : task)),
+    );
+  }, []);
+
   const sections = useMemo<TaskSection[]>(() => {
     const active: Task[] = [];
     const done: Task[] = [];
@@ -53,9 +59,14 @@ export default function TasksScreen() {
 
   const renderItem = useCallback(
     ({ item }: { item: Task }) => (
-      <TaskItem task={item} onToggle={toggleTask} onDelete={deleteTask} />
+      <TaskItem
+        task={item}
+        onToggle={toggleTask}
+        onDelete={deleteTask}
+        onEdit={editTask}
+      />
     ),
-    [toggleTask, deleteTask],
+    [toggleTask, deleteTask, editTask],
   );
 
   const renderSectionHeader = useCallback(
