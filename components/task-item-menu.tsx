@@ -1,5 +1,6 @@
-import { Alert, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
+import { useConfirm } from '@/components/confirm-dialog';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -23,22 +24,22 @@ export function TaskItemMenu({
   const surface = useThemeColor({}, 'surface');
   const danger = useThemeColor({}, 'danger');
   const textColor = useThemeColor({}, 'text');
+  const confirm = useConfirm();
 
   const handleEdit = () => {
     onClose();
     onEdit();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     onClose();
-    Alert.alert(
-      'Delete task?',
-      'This task will be permanently removed.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: onDelete },
-      ],
-    );
+    const ok = await confirm({
+      title: 'Delete task?',
+      message: 'This task will be permanently removed.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (ok) onDelete();
   };
 
   return (

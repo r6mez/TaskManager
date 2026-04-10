@@ -1,14 +1,16 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import uuid from 'react-native-uuid';
 
+import { useConfirm } from '@/components/confirm-dialog';
 import { TaskInput } from '@/components/task-input';
 import { TaskItem } from '@/components/task-item';
 import { TasksEmptyState } from '@/components/tasks-empty-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useAppTheme } from '@/components/theme-context';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import type { Task } from '@/types/task';
@@ -25,8 +27,11 @@ export default function TasksScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [completedCollapsed, setCompletedCollapsed] = useState(false);
   const insets = useSafeAreaInsets();
+  const { scheme, toggle: toggleScheme } = useAppTheme();
+  const confirm = useConfirm();
   const danger = useThemeColor({}, 'danger');
   const icon = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, 'text');
 
   const addTask = useCallback((text: string) => {
     setTasks((prev) => [
@@ -53,21 +58,17 @@ export default function TasksScreen() {
     );
   }, []);
 
-  const clearCompleted = useCallback(() => {
-    Alert.alert(
-      'Clear completed tasks?',
-      'All completed tasks will be permanently removed.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear',
-          style: 'destructive',
-          onPress: () =>
-            setTasks((prev) => prev.filter((task) => !task.completed)),
-        },
-      ],
-    );
-  }, []);
+  const clearCompleted = useCallback(async () => {
+    const ok = await confirm({
+      title: 'Clear completed tasks?',
+      message: 'All completed tasks will be permanently removed.',
+      confirmLabel: 'Clear',
+      destructive: true,
+    });
+    if (ok) {
+      setTasks((prev) => prev.filter((task) => !task.completed));
+    }
+  }, [confirm]);
 
   const sections = useMemo<TaskSection[]>(() => {
     const active: Task[] = [];
@@ -176,9 +177,29 @@ export default function TasksScreen() {
         behavior="padding"
         keyboardVerticalOffset={0}>
         <View style={styles.container}>
-          <ThemedText type="title" style={styles.title}>
-            Tasks
-          </ThemedText>
+          <View style={styles.titleRow}>
+            <ThemedText type="title" style={styles.title}>
+              Tasks
+            </ThemedText>
+            <Pressable
+              onPress={toggleScheme}
+              hitSlop={8}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: scheme === 'dark' }}
+              accessibilityLabel={
+                scheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+              }
+              style={({ pressed }) => [
+                styles.themeToggle,
+                { borderColor: icon, opacity: pressed ? 0.6 : 1 },
+              ]}>
+              <IconSymbol
+                name={scheme === 'dark' ? 'sun.max.fill' : 'moon.fill'}
+                size={20}
+                color={textColor}
+              />
+            </Pressable>
+          </View>
 
           {isEmpty ? (
             <TasksEmptyState />
@@ -224,9 +245,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   title: {
     marginTop: 8,
     marginBottom: 16,
+  },
+  themeToggle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   listContent: {
     paddingBottom: 16,

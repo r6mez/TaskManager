@@ -22,6 +22,8 @@ const MAPPING = {
   'pencil': 'edit',
   'chevron.down': 'keyboard-arrow-down',
   'chevron.right': 'keyboard-arrow-right',
+  'sun.max.fill': 'light-mode',
+  'moon.fill': 'dark-mode',
 } as IconMapping;
 
 /**

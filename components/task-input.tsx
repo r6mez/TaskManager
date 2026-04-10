@@ -15,6 +15,7 @@ export function TaskInput({ onAdd }: TaskInputProps) {
   const textColor = useThemeColor({}, 'text');
   const icon = useThemeColor({}, 'icon');
   const fieldBg = useThemeColor({}, 'surface');
+  const onTint = useThemeColor({}, 'background');
 
   const trimmed = text.trim();
   const canSubmit = trimmed.length > 0;
@@ -51,7 +52,7 @@ export function TaskInput({ onAdd }: TaskInputProps) {
             opacity: !canSubmit ? 0.4 : pressed ? 0.8 : 1,
           },
         ]}>
-        <IconSymbol name="plus" size={24} color="#fff" />
+        <IconSymbol name="plus" size={24} color={onTint} />
       </Pressable>
     </View>
   );
