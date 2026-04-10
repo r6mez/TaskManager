@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# Task Manager
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple cross-platform Task Manager built with React Native + Expo. Users can add tasks, edit them, mark them complete, and delete them, all in a clean UI.
 
-## Get started
+## Screenshots
 
-1. Install dependencies
+| Light mode | Dark mode |
+| :---: | :---: |
+| ![Light mode](./screenshots/LightTheme.jpg) | ![Dark mode](./screenshots/DarkTheme.jpg) |
+
+| Delete Dialogs | Task Options |
+| :---: | :---: |
+| ![Delete Dialog](./screenshots/DeleteDialog.jpg) | ![Task Options](./screenshots/TaskOptions.jpg) |
+
+## Features
+
+- Add tasks with a short description
+- Tap a task to toggle it between complete and incomplete (strikethrough + muted when complete)
+- Edit a task's text in place
+- Delete tasks, with a confirmation dialog for destructive actions
+- Separate **To do** and **Completed** sections, with a collapsible Completed group and a one-tap **Clear** to remove all completed tasks
+- Empty-state message when there are no tasks
+- Light and dark mode, with a manual toggle in the header (defaults to the OS setting)
+- Keyboard-aware input that stays docked above the keyboard
+
+## Tech stack
+
+- [Expo](https://expo.dev) SDK 54 with [expo-router](https://docs.expo.dev/router/introduction/) for file-based routing
+- React Native 0.81 + React 19
+- TypeScript (strict)
+- [@expo/vector-icons](https://icons.expo.fyi/) / [expo-symbols](https://docs.expo.dev/versions/latest/sdk/symbols/) for iconography (SF Symbols on iOS, Material Icons elsewhere)
+
+## Getting started
+
+Requires Node 20+ and npm.
+
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Start the Expo dev server:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Open the app:
+   - Press `i` to launch the iOS simulator (requires Xcode)
+   - Press `a` to launch an Android emulator (requires Android Studio)
+   - Press `w` to open the web build
+   - Or scan the QR code with [Expo Go](https://expo.dev/go) on a physical device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Third-party libraries
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+No UI kit was pulled in for this project, the app uses React Native primitives. The non-template dependencies worth calling out:
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `expo`, `expo-router` — app framework and file-based navigation
+- `react-native`, `react` — UI primitives
+- `@react-navigation/native` — theme provider consumed by expo-router
+- `@expo/vector-icons`, `expo-symbols` — iconography (SF Symbols on iOS, Material Icons elsewhere)
+- `react-native-safe-area-context` — safe-area insets for the screen padding
+- `react-native-keyboard-controller` — keyboard-aware layout so the input stays docked above the keyboard
+- `react-native-uuid` — stable ids for new tasks without relying on array index
