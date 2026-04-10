@@ -14,14 +14,7 @@ import { useAppTheme } from '@/components/theme-context';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import type { Task } from '@/types/task';
-
-type TaskSection = {
-  title: string;
-  data: Task[];
-  clearable?: boolean;
-  collapsible?: boolean;
-  collapsed?: boolean;
-};
+import type { TaskSection } from '@/types/task-section';
 
 export default function TasksScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
