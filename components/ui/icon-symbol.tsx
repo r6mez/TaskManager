@@ -20,6 +20,8 @@ const MAPPING = {
   'trash': 'delete',
   'ellipsis': 'more-horiz',
   'pencil': 'edit',
+  'chevron.down': 'keyboard-arrow-down',
+  'chevron.right': 'keyboard-arrow-right',
 } as IconMapping;
 
 /**

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { SectionList, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import uuid from 'react-native-uuid';
@@ -9,16 +9,24 @@ import { TaskItem } from '@/components/task-item';
 import { TasksEmptyState } from '@/components/tasks-empty-state';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import type { Task } from '@/types/task';
 
 type TaskSection = {
   title: string;
   data: Task[];
+  clearable?: boolean;
+  collapsible?: boolean;
+  collapsed?: boolean;
 };
 
 export default function TasksScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [completedCollapsed, setCompletedCollapsed] = useState(false);
   const insets = useSafeAreaInsets();
+  const danger = useThemeColor({}, 'danger');
+  const icon = useThemeColor({}, 'icon');
 
   const addTask = useCallback((text: string) => {
     setTasks((prev) => [
@@ -45,6 +53,22 @@ export default function TasksScreen() {
     );
   }, []);
 
+  const clearCompleted = useCallback(() => {
+    Alert.alert(
+      'Clear completed tasks?',
+      'All completed tasks will be permanently removed.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: () =>
+            setTasks((prev) => prev.filter((task) => !task.completed)),
+        },
+      ],
+    );
+  }, []);
+
   const sections = useMemo<TaskSection[]>(() => {
     const active: Task[] = [];
     const done: Task[] = [];
@@ -53,9 +77,17 @@ export default function TasksScreen() {
     }
     const result: TaskSection[] = [];
     if (active.length > 0) result.push({ title: 'To do', data: active });
-    if (done.length > 0) result.push({ title: 'Completed', data: done });
+    if (done.length > 0) {
+      result.push({
+        title: 'Completed',
+        data: completedCollapsed ? [] : done,
+        clearable: true,
+        collapsible: true,
+        collapsed: completedCollapsed,
+      });
+    }
     return result;
-  }, [tasks]);
+  }, [tasks, completedCollapsed]);
 
   const renderItem = useCallback(
     ({ item }: { item: Task }) => (
@@ -70,12 +102,60 @@ export default function TasksScreen() {
   );
 
   const renderSectionHeader = useCallback(
-    ({ section }: { section: { title: string } }) => (
-      <ThemedText type="defaultSemiBold" style={styles.sectionHeader}>
-        {section.title}
-      </ThemedText>
-    ),
-    [],
+    ({ section }: { section: TaskSection }) => {
+      const titleNode = (
+        <View style={styles.sectionTitleGroup}>
+          {section.collapsible && (
+            <IconSymbol
+              name={section.collapsed ? 'chevron.right' : 'chevron.down'}
+              size={18}
+              color={icon}
+            />
+          )}
+          <ThemedText type="defaultSemiBold" style={styles.sectionHeader}>
+            {section.title}
+          </ThemedText>
+        </View>
+      );
+
+      return (
+        <View style={styles.sectionHeaderRow}>
+          {section.collapsible ? (
+            <Pressable
+              onPress={() => setCompletedCollapsed((prev) => !prev)}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: !section.collapsed }}
+              accessibilityLabel={
+                section.collapsed
+                  ? 'Expand completed tasks'
+                  : 'Collapse completed tasks'
+              }
+              style={({ pressed }) => [
+                styles.sectionTitleGroup,
+                { opacity: pressed ? 0.6 : 1 },
+              ]}>
+              {titleNode}
+            </Pressable>
+          ) : (
+            titleNode
+          )}
+          {section.clearable && (
+            <Pressable
+              onPress={clearCompleted}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Clear completed tasks"
+              style={({ pressed }) => [styles.clearButton, { opacity: pressed ? 0.6 : 1 }]}>
+              <ThemedText style={[styles.clearButtonText, { color: danger }]}>
+                Clear
+              </ThemedText>
+            </Pressable>
+          )}
+        </View>
+      );
+    },
+    [clearCompleted, danger, icon],
   );
 
   const isEmpty = tasks.length === 0;
@@ -151,12 +231,32 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 16,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  sectionTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   sectionHeader: {
     fontSize: 13,
     textTransform: 'uppercase',
     opacity: 0.6,
     letterSpacing: 0.5,
-    marginBottom: 8,
+  },
+  clearButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+  },
+  clearButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   sectionGap: {
     height: 16,
